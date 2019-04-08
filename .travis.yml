@@ -1,0 +1,23 @@
+# Documentation: http://docs.travis-ci.com/user/languages/julia/
+language: julia
+os:
+  - linux
+  - osx
+julia:
+  - 1.0
+#before_install:
+#  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -qq update; fi
+addons:
+  apt_packages:
+    - gfortran
+notifications:
+  email: false
+env:
+ - PYTHON=""
+script:
+  - if [ $TRAVIS_OS_NAME = osx ]; then brew install gcc; fi
+  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+  - julia -e 'using Pkg; Pkg.build("Spectra"); Pkg.test("Spectra"; coverage=true)';
+after_success:
+  - julia -e 'using Pkg; Pkg.add("Documenter")'
+  - julia -e 'cd(Pkg.dir("Spectra")); include(joinpath("docs", "make.jl"))'
